@@ -69,16 +69,19 @@ module Mail =
         smtpMsg.IsBodyHtml <- false
         smtpMsg.Subject <- message.Subject
         smtpMsg.Body <- message.Body
-        client.Send smtpMsg        
+        client.Send smtpMsg
 
-[<EntryPoint>]
-let main argv = 
+let queue =
     let storageAccount =
         CloudConfigurationManager.GetSetting "storageConnectionString"
         |> CloudStorageAccount.Parse
 
     let q = storageAccount.CreateCloudQueueClient().GetQueueReference("qaiain")
     q.CreateIfNotExists() |> ignore
+    q
+
+[<EntryPoint>]
+let main argv = 
 
     let host = CloudConfigurationManager.GetSetting "email-host"
     let port = CloudConfigurationManager.GetSetting "email-port" |> Int32.Parse
@@ -93,10 +96,10 @@ let main argv =
 
     let send = Mail.send config
     
-    match q |> AzureQ.dequeue with
+    match queue |> AzureQ.dequeue with
     | Some(msg) ->
         msg.AsString |> Mail.deserializeMailData |> send
-        q.DeleteMessage msg
+        queue.DeleteMessage msg
     | _ -> ()
 
     0 // return an integer exit code
