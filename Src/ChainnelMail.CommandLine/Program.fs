@@ -80,22 +80,22 @@ let queue =
     q.CreateIfNotExists() |> ignore
     q
 
-let config =
+let send =
     let host = CloudConfigurationManager.GetSetting "email-host"
     let port = CloudConfigurationManager.GetSetting "email-port" |> Int32.Parse
     let userName = CloudConfigurationManager.GetSetting "email-username"
     let password = CloudConfigurationManager.GetSetting "email-password"
+    
+    let config = {
+        Mail.Host = host
+        Mail.Port = port
+        Mail.UserName = userName
+        Mail.Password = password }
 
-    {
-    Mail.Host = host
-    Mail.Port = port
-    Mail.UserName = userName
-    Mail.Password = password }
+    Mail.send config
 
 [<EntryPoint>]
 let main argv = 
-    let send = Mail.send config
-    
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
         msg.AsString |> Mail.deserializeMailData |> send
