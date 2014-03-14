@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ChainnelMail.CommandLine", "ChainnelMail.CommandLine\ChainnelMail.CommandLine.fsproj", "{E416534F-B217-476C-9897-2CBA44E0EF02}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Qaiain.CommandLine", "Qaiain.CommandLine\Qaiain.CommandLine.fsproj", "{E416534F-B217-476C-9897-2CBA44E0EF02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
