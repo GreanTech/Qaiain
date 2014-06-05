@@ -42,7 +42,7 @@ let ToDocumentTypeForKnownEmailNamespaceNameReturnsCorrectResult () =
           <email xmlns=""urn:grean:schemas:email:2014"">
           </email>"
         |> System.Xml.Linq.XDocument.Parse
-    let expected = message |> Email
+    let expected = message |> EmailData
     let actual = message |> ToDocumentType
     verify <@ expected = actual @>
 
@@ -56,4 +56,42 @@ let ParseEmailReferenceReturnsCorrectResult () =
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
     let actual = message |> ParseEmailReference
+    verify <@ expected = actual @>
+
+[<Fact>]
+let ParseEmailReturnsCorrectResult () =
+    let expected = {
+        From = { SmtpAddress = "foo@foo.com"
+                 DisplayName = "Foo" }
+
+        To = [| { SmtpAddress = "bar@bar.com"
+                  DisplayName = "Bar" }
+                { SmtpAddress = "qux@qux.com"
+                  DisplayName = "Qux" } |]
+
+        Subject = "Test"
+        Body = "This is a test message."
+    }
+    let message =
+        @"<?xml version=""1.0""?>
+          <email xmlns=""urn:grean:schemas:email:2014"">
+            <from>
+              <smtp-address>foo@foo.com</smtp-address>
+              <display-name>Foo</display-name>
+            </from>
+            <to>
+              <address>
+                <smtp-address>bar@bar.com</smtp-address>
+                <display-name>Bar</display-name>
+              </address>
+              <address>
+                <smtp-address>qux@qux.com</smtp-address>
+                <display-name>Qux</display-name>
+              </address>
+            </to>
+            <subject>Test</subject>
+            <body>This is a test message.</body>
+          </email>"
+        |> System.Xml.Linq.XDocument.Parse
+    let actual = message |> ParseEmailData
     verify <@ expected = actual @>
