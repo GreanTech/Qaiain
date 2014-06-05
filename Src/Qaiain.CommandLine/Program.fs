@@ -70,7 +70,9 @@ let main argv =
         | EmailData document ->
             ParseEmailData document |> send
             queue.DeleteMessage msg
-        | _ -> ()
+        | EmailReference document ->
+            ParseEmailReference document |> ignore
+        | Unknown -> ()
     | _ -> ()
 
     0 // return an integer exit code
