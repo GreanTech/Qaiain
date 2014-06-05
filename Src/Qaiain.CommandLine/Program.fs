@@ -9,41 +9,18 @@ module AzureQ =
         | msg -> Some(msg)
 
 module Mail =
-    open System.Xml.Serialization
 
-    [<CLIMutable>]
-    [<XmlRoot("address", Namespace = "http://grean.com/email/2014")>]
     type Address = {
-        [<XmlElement("smtp-address")>]
         SmtpAddress : string
-
-        [<XmlElement("display-name")>]
         DisplayName : string
     }
 
-    [<CLIMutable>]
-    [<XmlRoot("email", Namespace = "http://grean.com/email/2014")>]
     type EmailData = {
-        [<XmlElement("from")>]
         From : Address
-
-        [<XmlArray("to")>]
-        [<XmlArrayItem("address")>]
         To : Address array
-
-        [<XmlElement("subject")>]
         Subject : string
-
-        [<XmlElement("body")>]
         Body : string
     }
-
-    open System.IO
-
-    let deserializeMailData xml =
-        let serializer = XmlSerializer(typeof<EmailData>)
-        use reader = new StringReader(xml)
-        (serializer.Deserialize reader) :?> EmailData
 
     type SmtpConfiguration = {
         Host : string
@@ -98,7 +75,6 @@ let send =
 let main argv = 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        msg.AsString |> Mail.deserializeMailData |> send
         queue.DeleteMessage msg
     | _ -> ()
 
