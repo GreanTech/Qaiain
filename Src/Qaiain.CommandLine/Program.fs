@@ -1,4 +1,5 @@
 ﻿open System
+open Grean.Qaiain
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
@@ -9,18 +10,6 @@ module AzureQ =
         | msg -> Some(msg)
 
 module Mail =
-
-    type Address = {
-        SmtpAddress : string
-        DisplayName : string
-    }
-
-    type EmailData = {
-        From : Address
-        To : Address array
-        Subject : string
-        Body : string
-    }
 
     type SmtpConfiguration = {
         Host : string
