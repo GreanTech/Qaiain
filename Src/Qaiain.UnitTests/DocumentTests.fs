@@ -45,3 +45,15 @@ let ToDocumentTypeForKnownEmailNamespaceNameReturnsCorrectResult () =
     let expected = message |> Email
     let actual = message |> ToDocumentType
     verify <@ expected = actual @>
+
+[<Fact>]
+let ParseEmailReferenceReturnsCorrectResult () =
+    let expected = { DataAddress = "http://blobs.foo.bar/baz/qux" }
+    let message =
+        @"<?xml version=""1.0""?>
+          <email-reference xmlns=""urn:grean:schemas:email-reference:2014"">
+            <email-data-address>" +  expected.DataAddress + "</email-data-address>
+          </email-reference>"
+        |> System.Xml.Linq.XDocument.Parse
+    let actual = message |> ParseEmailReference
+    verify <@ expected = actual @>
