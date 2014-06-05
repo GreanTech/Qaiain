@@ -11,3 +11,7 @@ type EmailData = {
     Subject : string
     Body : string
 }
+
+type EmailReference = {
+    DataAddress : string
+}
