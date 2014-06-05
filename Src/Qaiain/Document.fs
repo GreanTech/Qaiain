@@ -11,7 +11,7 @@ type DocumentType =
 [<AutoOpen>]
 module Document =
 
-    let ToDocumentType message =
-        let document = message |> XDocument.Parse
+    let ToDocumentType (document : XDocument) =
         match document.Root.Name.Namespace.NamespaceName with
+        | "urn:grean:schemas:email-reference:2014" -> EmailReference document
         | _ -> Unknown

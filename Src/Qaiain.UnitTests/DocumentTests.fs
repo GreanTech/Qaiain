@@ -21,7 +21,18 @@ let ToDocumentTypeForUnknownNamespaceNameReturnsCorrectResult namespaceName =
           <email-reference xmlns=""" + namespaceName + @""">
             <email-data-address>http://blobs.foo.bar/baz/qux</email-data-address>
           </email-reference>"
-
+        |> System.Xml.Linq.XDocument.Parse
     let actual = message |> ToDocumentType
-
     verify <@ Unknown = actual @>
+
+[<Fact>]
+let ToDocumentTypeForKnownEmailReferenceNamespaceNameReturnsCorrectResult () =
+    let message =
+        @"<?xml version=""1.0""?>
+          <email-reference xmlns=""urn:grean:schemas:email-reference:2014"">
+            <email-data-address>http://blobs.foo.bar/baz/qux</email-data-address>
+          </email-reference>"
+        |> System.Xml.Linq.XDocument.Parse
+    let expected = message |> EmailReference
+    let actual = message |> ToDocumentType
+    verify <@ expected = actual @>
