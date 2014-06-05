@@ -16,7 +16,7 @@ module Document =
         | "urn:grean:schemas:email-reference:2014" -> EmailReference document
         | _ -> Unknown
 
-    let ParseEmailReference (document : XDocument) =
+    let CreateEmailReference (document : XDocument) =
         let (/-) (node : XContainer) name = node.Elements name
         let (/+) (el : XElement seq) name = el |> Seq.collect(fun x -> x /- name)
         let navigate name =
@@ -31,7 +31,7 @@ module Document =
                 |> Seq.exactlyOne
         }
 
-    let ParseEmailData (document : XDocument) =
+    let CreateEmailData (document : XDocument) =
         let (/-) (node : XContainer) name = node.Elements name
         let (/+) (el : XElement seq) name = el |> Seq.collect(fun x -> x /- name)
         let navigate name =

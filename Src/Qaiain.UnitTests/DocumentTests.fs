@@ -55,7 +55,7 @@ let ParseEmailReferenceReturnsCorrectResult () =
             <email-data-address>" +  expected.DataAddress + "</email-data-address>
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
-    let actual = message |> ParseEmailReference
+    let actual = message |> CreateEmailReference
     verify <@ expected = actual @>
 
 [<Fact>]
@@ -93,5 +93,5 @@ let ParseEmailReturnsCorrectResult () =
             <body>This is a test message.</body>
           </email>"
         |> System.Xml.Linq.XDocument.Parse
-    let actual = message |> ParseEmailData
+    let actual = message |> CreateEmailData
     verify <@ expected = actual @>

@@ -68,10 +68,10 @@ let main argv =
     | Some(msg) ->
         match msg.AsString |> XDocument.Parse |> ToDocumentType with
         | EmailData document ->
-            ParseEmailData document |> send
+            CreateEmailData document |> send
             queue.DeleteMessage msg
         | EmailReference document ->
-            ParseEmailReference document |> ignore
+            CreateEmailReference document |> ignore
         | Unknown -> ()
     | _ -> ()
 
