@@ -60,11 +60,17 @@ let send =
 
     Mail.send config
 
+open System.Xml.Linq
+
 [<EntryPoint>]
-let main argv = 
+let main argv =
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        queue.DeleteMessage msg
+        match msg.AsString |> XDocument.Parse |> ToDocumentType with
+        | EmailData document ->
+            ParseEmailData document |> send
+            queue.DeleteMessage msg
+        | _ -> ()
     | _ -> ()
 
     0 // return an integer exit code
