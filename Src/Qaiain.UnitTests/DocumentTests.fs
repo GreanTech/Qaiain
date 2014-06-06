@@ -21,7 +21,9 @@ let ToEmailDocumentForUnknownNamespaceNameReturnsCorrectResult namespaceName =
           <email-reference xmlns=""" + namespaceName + @""">
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
+
     let actual = message |> ToEmailDocument
+
     verify <@ Unknown = actual @>
 
 [<Fact>]
@@ -32,7 +34,9 @@ let ToEmailDocumentForKnownEmailReferenceNamespaceNameReturnsCorrectResult () =
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
     let expected = message |> EmailReference
+
     let actual = message |> ToEmailDocument
+
     verify <@ expected = actual @>
 
 [<Fact>]
@@ -43,7 +47,9 @@ let ToEmailDocumentForKnownEmailNamespaceNameReturnsCorrectResult () =
           </email>"
         |> System.Xml.Linq.XDocument.Parse
     let expected = message |> EmailData
+
     let actual = message |> ToEmailDocument
+
     verify <@ expected = actual @>
 
 [<Fact>]
@@ -55,7 +61,9 @@ let ParseEmailReferenceReturnsCorrectResult () =
             <email-data-address>" +  expected.DataAddress + "</email-data-address>
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
+
     let actual = message |> CreateEmailReference
+
     verify <@ expected = actual @>
 
 [<Fact>]
@@ -93,5 +101,7 @@ let ParseEmailReturnsCorrectResult () =
             <body>This is a test message.</body>
           </email>"
         |> System.Xml.Linq.XDocument.Parse
+
     let actual = message |> CreateEmailData
+
     verify <@ expected = actual @>
