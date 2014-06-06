@@ -53,7 +53,7 @@ let ToEmailDocumentForKnownEmailNamespaceNameReturnsCorrectResult () =
     verify <@ expected = actual @>
 
 [<Fact>]
-let ParseEmailReferenceReturnsCorrectResult () =
+let CreateEmailReferenceReturnsCorrectResult () =
     let expected = { DataAddress = "http://blobs.foo.bar/baz/qux" }
     let message =
         @"<?xml version=""1.0""?>
@@ -67,7 +67,7 @@ let ParseEmailReferenceReturnsCorrectResult () =
     verify <@ expected = actual @>
 
 [<Fact>]
-let ParseEmailReturnsCorrectResult () =
+let CreateEmailDataReturnsCorrectResult () =
     let expected = {
         From = { SmtpAddress = "foo@foo.com"
                  DisplayName = "Foo" }
