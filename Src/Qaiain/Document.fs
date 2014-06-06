@@ -3,14 +3,14 @@
 open System.Xml
 open System.Xml.Linq
 
-type DocumentType =
+type EmailDocument =
     | EmailData of XDocument
     | EmailReference of XDocument
     | Unknown
 
 [<AutoOpen>]
 module Document =
-    let ToDocumentType (document : XDocument) =
+    let ToEmailDocument (document : XDocument) =
         match document.Root.Name.Namespace.NamespaceName with
         | "urn:grean:schemas:email:2014" -> EmailData document
         | "urn:grean:schemas:email-reference:2014" -> EmailReference document

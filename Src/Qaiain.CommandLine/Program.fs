@@ -66,7 +66,7 @@ open System.Xml.Linq
 let main argv =
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        match msg.AsString |> XDocument.Parse |> ToDocumentType with
+        match msg.AsString |> XDocument.Parse |> ToEmailDocument with
         | EmailData document ->
             CreateEmailData document |> send
             queue.DeleteMessage msg

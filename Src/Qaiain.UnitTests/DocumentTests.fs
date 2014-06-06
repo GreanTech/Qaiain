@@ -15,35 +15,35 @@ let verify = Swensen.Unquote.Assertions.test
 [<InlineData("urn:grean:schemas:email-reference:2012")>]
 [<InlineData("urn:grean:schemas:email-reference:2013")>]
 [<InlineData("urn:grean:schemas:email-reference:2015")>]
-let ToDocumentTypeForUnknownNamespaceNameReturnsCorrectResult namespaceName =
+let ToEmailDocumentForUnknownNamespaceNameReturnsCorrectResult namespaceName =
     let message =
         @"<?xml version=""1.0""?>
           <email-reference xmlns=""" + namespaceName + @""">
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
-    let actual = message |> ToDocumentType
+    let actual = message |> ToEmailDocument
     verify <@ Unknown = actual @>
 
 [<Fact>]
-let ToDocumentTypeForKnownEmailReferenceNamespaceNameReturnsCorrectResult () =
+let ToEmailDocumentForKnownEmailReferenceNamespaceNameReturnsCorrectResult () =
     let message =
         @"<?xml version=""1.0""?>
           <email-reference xmlns=""urn:grean:schemas:email-reference:2014"">
           </email-reference>"
         |> System.Xml.Linq.XDocument.Parse
     let expected = message |> EmailReference
-    let actual = message |> ToDocumentType
+    let actual = message |> ToEmailDocument
     verify <@ expected = actual @>
 
 [<Fact>]
-let ToDocumentTypeForKnownEmailNamespaceNameReturnsCorrectResult () =
+let ToEmailDocumentForKnownEmailNamespaceNameReturnsCorrectResult () =
     let message =
         @"<?xml version=""1.0""?>
           <email xmlns=""urn:grean:schemas:email:2014"">
           </email>"
         |> System.Xml.Linq.XDocument.Parse
     let expected = message |> EmailData
-    let actual = message |> ToDocumentType
+    let actual = message |> ToEmailDocument
     verify <@ expected = actual @>
 
 [<Fact>]
