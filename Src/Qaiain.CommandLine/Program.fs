@@ -1,4 +1,5 @@
 ﻿open System
+open Grean.Qaiain
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
@@ -9,41 +10,6 @@ module AzureQ =
         | msg -> Some(msg)
 
 module Mail =
-    open System.Xml.Serialization
-
-    [<CLIMutable>]
-    [<XmlRoot("address", Namespace = "http://grean.com/email/2014")>]
-    type Address = {
-        [<XmlElement("smtp-address")>]
-        SmtpAddress : string
-
-        [<XmlElement("display-name")>]
-        DisplayName : string
-    }
-
-    [<CLIMutable>]
-    [<XmlRoot("email", Namespace = "http://grean.com/email/2014")>]
-    type EmailData = {
-        [<XmlElement("from")>]
-        From : Address
-
-        [<XmlArray("to")>]
-        [<XmlArrayItem("address")>]
-        To : Address array
-
-        [<XmlElement("subject")>]
-        Subject : string
-
-        [<XmlElement("body")>]
-        Body : string
-    }
-
-    open System.IO
-
-    let deserializeMailData xml =
-        let serializer = XmlSerializer(typeof<EmailData>)
-        use reader = new StringReader(xml)
-        (serializer.Deserialize reader) :?> EmailData
 
     type SmtpConfiguration = {
         Host : string
@@ -94,12 +60,19 @@ let send =
 
     Mail.send config
 
+open System.Xml.Linq
+
 [<EntryPoint>]
-let main argv = 
+let main argv =
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        msg.AsString |> Mail.deserializeMailData |> send
-        queue.DeleteMessage msg
+        match msg.AsString |> XDocument.Parse |> ToEmailDocument with
+        | EmailData document ->
+            CreateEmailData document |> send
+            queue.DeleteMessage msg
+        | EmailReference document ->
+            CreateEmailReference document |> ignore
+        | Unknown -> ()
     | _ -> ()
 
     0 // return an integer exit code

@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Qaiain.CommandLine", "Qaiain.CommandLine\Qaiain.CommandLine.fsproj", "{E416534F-B217-476C-9897-2CBA44E0EF02}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Qaiain", "Qaiain\Qaiain.fsproj", "{3982B99E-BBC5-45A0-8444-FF8D91E4E664}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Qaiain.UnitTests", "Qaiain.UnitTests\Qaiain.UnitTests.fsproj", "{7E5A9107-F04A-4690-B6DB-F2AF7FC5B0F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{E416534F-B217-476C-9897-2CBA44E0EF02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E416534F-B217-476C-9897-2CBA44E0EF02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E416534F-B217-476C-9897-2CBA44E0EF02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3982B99E-BBC5-45A0-8444-FF8D91E4E664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3982B99E-BBC5-45A0-8444-FF8D91E4E664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3982B99E-BBC5-45A0-8444-FF8D91E4E664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3982B99E-BBC5-45A0-8444-FF8D91E4E664}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E5A9107-F04A-4690-B6DB-F2AF7FC5B0F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E5A9107-F04A-4690-B6DB-F2AF7FC5B0F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E5A9107-F04A-4690-B6DB-F2AF7FC5B0F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E5A9107-F04A-4690-B6DB-F2AF7FC5B0F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
