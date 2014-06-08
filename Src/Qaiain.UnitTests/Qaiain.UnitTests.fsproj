@@ -8,7 +8,7 @@
     <ProjectGuid>5077adae-1a13-40db-ba0e-ab4dd394523c</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Qaiain.UnitTests</RootNamespace>
-    <AssemblyName>Qaiain.UnitTests</AssemblyName>
+    <AssemblyName>Grean.Qaiain.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>Qaiain.UnitTests</Name>
