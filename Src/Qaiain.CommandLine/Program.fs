@@ -27,6 +27,7 @@ module Mail =
 
     type EmailMessage =
         | EmailData of EmailData
+        | Unknown
 
     open System.Xml
 
@@ -37,19 +38,21 @@ module Mail =
         let select xp = xml.DocumentElement.SelectSingleNode(xp, ns).InnerText
         let selectAll xp = xml.DocumentElement.SelectNodes(xp, ns)
 
-        {
-            From = { SmtpAddress = select <| "e:from/e:smtp-address"
-                     DisplayName = select <| "e:from/e:display-name" }
+        try
+            {
+                From = { SmtpAddress = select <| "e:from/e:smtp-address"
+                         DisplayName = select <| "e:from/e:display-name" }
 
-            To = seq { for n in selectAll <| "e:to/e:address"  do
-                            yield { SmtpAddress = n.FirstChild.InnerText;
-                                    DisplayName = n.LastChild.InnerText } }
-                    |> Seq.toArray
+                To = seq { for n in selectAll <| "e:to/e:address"  do
+                                yield { SmtpAddress = n.FirstChild.InnerText;
+                                        DisplayName = n.LastChild.InnerText } }
+                        |> Seq.toArray
 
-            Subject = select <| "e:subject"
-            Body = select <| "e:body"
-        }
-        |> EmailData
+                Subject = select <| "e:subject"
+                Body = select <| "e:body"
+            }
+            |> EmailData
+        with | :? NullReferenceException -> Unknown
 
     let Parse input =
         let xml = XmlDocument()
