@@ -32,8 +32,8 @@ module Mail =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
-        let select xp = xml.DocumentElement.SelectSingleNode(xp, ns).InnerText
-        let selectAll xp = xml.DocumentElement.SelectNodes(xp, ns)
+        let select path = xml.DocumentElement.SelectSingleNode(path, ns).InnerText
+        let selectAll path = xml.DocumentElement.SelectNodes(path, ns)
 
         try
             {
