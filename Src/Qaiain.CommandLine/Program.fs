@@ -51,7 +51,7 @@ module Mail =
             |> EmailData
         with | :? NullReferenceException -> Unknown
 
-    let Parse input =
+    let parse input =
         let xml = XmlDocument()
         xml.LoadXml(input)
         match xml.DocumentElement.Name with
@@ -111,7 +111,7 @@ let send =
 let main argv = 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        match msg.AsString |> Mail.Parse with
+        match msg.AsString |> Mail.parse with
         | Mail.EmailData mail ->
             send mail
             queue.DeleteMessage msg

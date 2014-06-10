@@ -140,5 +140,5 @@ let ParseReturnsCorrectResult () =
           expected = Unknown }
     ]
     |> Seq.map (fun tc -> TestCase (fun () ->
-        let actual = Parse tc.input
+        let actual = parse tc.input
         verify <@ tc.expected = actual @>))
