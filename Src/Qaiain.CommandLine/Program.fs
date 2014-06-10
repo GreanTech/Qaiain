@@ -22,9 +22,6 @@ module Mail =
         Body : string
     }
 
-    let deserializeMailData xml =
-        obj() :?> EmailData
-
     type EmailMessage =
         | EmailData of EmailData
         | Unknown
@@ -114,8 +111,11 @@ let send =
 let main argv = 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        msg.AsString |> Mail.deserializeMailData |> send
-        queue.DeleteMessage msg
+        match msg.AsString |> Mail.Parse with
+        | Mail.EmailData mail ->
+            send mail
+            queue.DeleteMessage msg
+        | _ -> raise <| InvalidOperationException("Unknown message type.")
     | _ -> ()
 
     0 // return an integer exit code
