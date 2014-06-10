@@ -43,7 +43,7 @@ module Mail =
                 To = seq { for n in selectAll <| "e:to/e:address"  do
                                 yield { SmtpAddress = n.FirstChild.InnerText;
                                         DisplayName = n.LastChild.InnerText } }
-                        |> Seq.toArray
+                     |> Seq.toArray
 
                 Subject = select <| "e:subject"
                 Body = select <| "e:body"
