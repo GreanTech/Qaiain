@@ -65,6 +65,30 @@ let ParseReturnsCorrectResult () =
                        Subject = "Test"
                        Body = "This is a test message." }
                      |> EmailData }
+
+        { input =
+           """<?xml version="1.0"?>
+              <email xmlns:e="urn:grean:schemas:email:2014">
+                <e:from>
+                  <e:smtp-address>foo@foo.com</e:smtp-address>
+                  <e:display-name>Foo</e:display-name>
+                </e:from>
+                <e:to>
+                  <e:address>
+                    <e:smtp-address>bar@bar.com</e:smtp-address>
+                    <e:display-name>Bar</e:display-name>
+                  </e:address>
+                </e:to>
+                <e:subject>Test</e:subject>
+                <e:body>This is a test message.</e:body>
+              </email>"""
+          expected = { From = { SmtpAddress = "foo@foo.com"
+                                DisplayName = "Foo" }
+                       To = [| { SmtpAddress = "bar@bar.com";
+                                 DisplayName = "Bar" } |]
+                       Subject = "Test"
+                       Body = "This is a test message." }
+                     |> EmailData }
     ]
     |> Seq.map (fun tc -> TestCase (fun () ->
         let actual = Parse tc.input
