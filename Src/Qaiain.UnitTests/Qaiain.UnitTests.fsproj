@@ -71,6 +71,13 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Qaiain.CommandLine\Qaiain.CommandLine.fsproj">
+      <Name>Qaiain.CommandLine</Name>
+      <Project>{e416534f-b217-476c-9897-2cba44e0ef02}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

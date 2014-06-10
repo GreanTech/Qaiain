@@ -25,6 +25,24 @@ module Mail =
     let deserializeMailData xml =
         obj() :?> EmailData
 
+    type EmailMessage =
+        | EmailData of EmailData
+
+    open System.Xml
+
+    let Parse input =
+        let xml = XmlDocument()
+        xml.LoadXml(input)
+        match xml.DocumentElement.Name with
+        | "email" ->
+            {
+                From = { SmtpAddress = "foo@foo.com"; DisplayName = "Foo" }
+                To = [| { SmtpAddress = "bar@bar.com"; DisplayName = "Bar" } |]
+                Subject = "Test"
+                Body = "This is a test message."
+            }
+            |> EmailData
+
     type SmtpConfiguration = {
         Host : string
         Port : int
