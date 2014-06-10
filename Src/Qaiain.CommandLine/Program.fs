@@ -30,18 +30,32 @@ module Mail =
 
     open System.Xml
 
+    let private toEmailData (xml : XmlDocument) =
+        let ns = XmlNamespaceManager(xml.NameTable)
+        ns.AddNamespace("e", "urn:grean:schemas:email:2014")
+
+        let select xp = xml.DocumentElement.SelectSingleNode(xp, ns).InnerText
+        let selectAll xp = xml.DocumentElement.SelectNodes(xp, ns)
+
+        {
+            From = { SmtpAddress = select <| "e:from/e:smtp-address"
+                     DisplayName = select <| "e:from/e:display-name" }
+
+            To = seq { for n in selectAll <| "e:to/e:address"  do
+                            yield { SmtpAddress = n.FirstChild.InnerText;
+                                    DisplayName = n.LastChild.InnerText } }
+                    |> Seq.toArray
+
+            Subject = select <| "e:subject"
+            Body = select <| "e:body"
+        }
+        |> EmailData
+
     let Parse input =
         let xml = XmlDocument()
         xml.LoadXml(input)
         match xml.DocumentElement.Name with
-        | "email" ->
-            {
-                From = { SmtpAddress = "foo@foo.com"; DisplayName = "Foo" }
-                To = [| { SmtpAddress = "bar@bar.com"; DisplayName = "Bar" } |]
-                Subject = "Test"
-                Body = "This is a test message."
-            }
-            |> EmailData
+        | "email" -> xml |> toEmailData
 
     type SmtpConfiguration = {
         Host : string
