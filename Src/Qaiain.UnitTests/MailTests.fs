@@ -135,6 +135,9 @@ let ParseReturnsCorrectResult () =
                 <body>This is a test message.</body>
               </email>"""
           expected = Unknown }
+
+        { input = "<foo />"
+          expected = Unknown }
     ]
     |> Seq.map (fun tc -> TestCase (fun () ->
         let actual = Parse tc.input

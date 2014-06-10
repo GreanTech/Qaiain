@@ -59,6 +59,7 @@ module Mail =
         xml.LoadXml(input)
         match xml.DocumentElement.Name with
         | "email" -> xml |> toEmailData
+        | _ -> Unknown
 
     type SmtpConfiguration = {
         Host : string
