@@ -138,6 +138,18 @@ let ParseReturnsCorrectResult () =
 
         { input = "<foo />"
           expected = Unknown }
+
+        { input = ""
+          expected = Unknown }
+
+        { input = "  "
+          expected = Unknown }
+
+        { input = "<foo>"
+          expected = Unknown }
+
+        { input = "<bar"
+          expected = Unknown }
     ]
     |> Seq.map (fun tc -> TestCase (fun () ->
         let actual = parse tc.input

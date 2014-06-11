@@ -53,10 +53,12 @@ module Mail =
 
     let parse input =
         let xml = XmlDocument()
-        xml.LoadXml(input)
-        match xml.DocumentElement.Name with
-        | "email" -> xml |> toEmailData
-        | _ -> Unknown
+        try
+            xml.LoadXml(input)
+            match xml.DocumentElement.Name with
+            | "email" -> xml |> toEmailData
+            | _ -> Unknown
+        with _ -> Unknown
 
     type SmtpConfiguration = {
         Host : string
