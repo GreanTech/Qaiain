@@ -28,7 +28,7 @@ module Mail =
 
     open System.Xml
 
-    let private toEmailData (xml : XmlDocument) =
+    let private toEmailMessage (xml : XmlDocument) =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
@@ -55,7 +55,7 @@ module Mail =
         let xml = XmlDocument()
         xml.LoadXml(input)
         match xml.DocumentElement.Name with
-        | "email" -> xml |> toEmailData
+        | "email" -> xml |> toEmailMessage
         | _ -> Unknown
 
     type SmtpConfiguration = {
