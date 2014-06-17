@@ -92,7 +92,8 @@ let queue =
         CloudConfigurationManager.GetSetting "storageConnectionString"
         |> CloudStorageAccount.Parse
 
-    let q = storageAccount.CreateCloudQueueClient().GetQueueReference("qaiain")
+    let name = CloudConfigurationManager.GetSetting "queue-name"
+    let q = storageAccount.CreateCloudQueueClient().GetQueueReference(name)
     q.CreateIfNotExists() |> ignore
     q
 
