@@ -33,7 +33,7 @@ module Mail =
 
     open System.Xml
 
-    let private toEmailMessage (xml : XmlDocument) =
+    let private tryParseEmailData (xml : XmlDocument) =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
@@ -76,7 +76,7 @@ module Mail =
         try
             xml.LoadXml(input)
             match xml.DocumentElement.Name with
-            | "email" -> xml |> toEmailMessage
+            | "email" -> xml |> tryParseEmailData
             | "email-reference" -> xml |> tryParseEmailReference
             | _ -> Unknown
         with _ -> Unknown
