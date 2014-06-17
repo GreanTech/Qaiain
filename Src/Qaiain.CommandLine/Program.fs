@@ -33,7 +33,7 @@ module Mail =
 
     open System.Xml
 
-    let private tryParseEmailData (xml : XmlDocument) =
+    let private (|EmailData|_|)  (xml : XmlDocument) =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
@@ -53,10 +53,10 @@ module Mail =
                 Subject = select "e:subject"
                 Body = select "e:body"
             }
-            |> EmailData
-        with | :? NullReferenceException -> Unknown
+            |> Some
+        with | :? NullReferenceException -> None
 
-    let private tryParseEmailReference (xml : XmlDocument) =
+    let private (|EmailReference|_|)  (xml : XmlDocument) =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
@@ -64,20 +64,20 @@ module Mail =
         let selectAll path = xml.DocumentElement.SelectNodes(path, ns)
 
         try
-        {
-            DataAddress = select "e:data-address"
-        }
-        |> EmailReference
-        with | :? NullReferenceException -> Unknown
+            {
+                DataAddress = select "e:data-address"
+            }
+            |> Some
+        with | :? NullReferenceException -> None
 
     let parse input =
         let xml = XmlDocument()
 
         try
             xml.LoadXml(input)
-            match xml.DocumentElement.Name with
-            | "email" -> xml |> tryParseEmailData
-            | "email-reference" -> xml |> tryParseEmailReference
+            match xml with
+            | EmailData data -> EmailData data
+            | EmailReference ref -> EmailReference ref
             | _ -> Unknown
         with _ -> Unknown
 
