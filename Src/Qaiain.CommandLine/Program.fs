@@ -22,8 +22,13 @@ module Mail =
         Body : string
     }
 
+    type EmailReference = {
+        DataAddress : string
+    }
+
     type EmailMessage =
         | EmailData of EmailData
+        | EmailReference of EmailReference
         | Unknown
 
     open System.Xml
@@ -58,6 +63,7 @@ module Mail =
             xml.LoadXml(input)
             match xml.DocumentElement.Name with
             | "email" -> xml |> toEmailMessage
+            | "email-reference" -> { DataAddress = "http://blobs.foo.bar/baz/qux" } |> EmailReference
             | _ -> Unknown
         with _ -> Unknown
 
