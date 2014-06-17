@@ -158,6 +158,12 @@ let ParseReturnsCorrectResult () =
               </email-reference>"""
           expected = { DataAddress = "http://blobs.foo.bar/baz/qux" }
                      |> EmailReference }
+
+        { input =
+           """<?xml version="1.0"?>
+              <email-reference xmlns="urn:grean:schemas:email:2014">
+              </email-reference>"""
+          expected = Unknown }
     ]
     |> Seq.map (fun tc -> TestCase (fun () ->
         let actual = parse tc.input

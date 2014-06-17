@@ -56,6 +56,20 @@ module Mail =
             |> EmailData
         with | :? NullReferenceException -> Unknown
 
+    let private tryParseEmailReference (xml : XmlDocument) =
+        let ns = XmlNamespaceManager(xml.NameTable)
+        ns.AddNamespace("e", "urn:grean:schemas:email:2014")
+
+        let select path = xml.DocumentElement.SelectSingleNode(path, ns).InnerText
+        let selectAll path = xml.DocumentElement.SelectNodes(path, ns)
+
+        try
+        {
+            DataAddress = select "e:data-address"
+        }
+        |> EmailReference
+        with | :? NullReferenceException -> Unknown
+
     let parse input =
         let xml = XmlDocument()
 
@@ -63,7 +77,7 @@ module Mail =
             xml.LoadXml(input)
             match xml.DocumentElement.Name with
             | "email" -> xml |> toEmailMessage
-            | "email-reference" -> { DataAddress = "http://blobs.foo.bar/baz/qux" } |> EmailReference
+            | "email-reference" -> xml |> tryParseEmailReference
             | _ -> Unknown
         with _ -> Unknown
 
