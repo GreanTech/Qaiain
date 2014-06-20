@@ -33,7 +33,7 @@ module Mail =
 
     open System.Xml
 
-    let private (|EmailData|_|)  (xml : XmlDocument) =
+    let private (|EmailData|_|) (xml : XmlDocument) =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
@@ -56,7 +56,7 @@ module Mail =
             |> Some
         with | :? NullReferenceException -> None
 
-    let private (|EmailReference|_|)  (xml : XmlDocument) =
+    let private (|EmailReference|_|) (xml : XmlDocument) =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
