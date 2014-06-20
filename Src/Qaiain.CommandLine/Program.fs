@@ -158,7 +158,9 @@ let rec handle msg =
         send mail
     | Mail.EmailReference ref ->
         let b = blob.GetBlockBlobReference(ref.DataAddress)
-        decompressGZip b |> handle
+        b
+        |> decompressGZip
+        |> handle
         b.Delete()
     | _ -> raise <| InvalidOperationException("Unknown message type.")
 
