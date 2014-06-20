@@ -128,7 +128,7 @@ let blob =
     blob.CreateIfNotExists() |> ignore
     blob
 
-let read (b : Blob.CloudBlockBlob) =
+let decompressGZip (b : Blob.CloudBlockBlob) =
     use s = new MemoryStream()
     b.DownloadToStream(s)
     s.Seek(0L, SeekOrigin.Begin) |> ignore
@@ -158,7 +158,7 @@ let rec handle msg =
         send mail
     | Mail.EmailReference ref ->
         let b = blob.GetBlockBlobReference(ref.DataAddress)
-        read b |> handle
+        decompressGZip b |> handle
         b.Delete()
     | _ -> raise <| InvalidOperationException("Unknown message type.")
 
