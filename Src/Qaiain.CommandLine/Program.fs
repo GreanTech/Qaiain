@@ -1,4 +1,6 @@
 ﻿open System
+open System.IO
+open System.IO.Compression
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
@@ -116,6 +118,26 @@ let queue =
     q.CreateIfNotExists() |> ignore
     q
 
+let blob =
+    let storageAccount =
+        CloudConfigurationManager.GetSetting "storageConnectionString"
+        |> CloudStorageAccount.Parse
+
+    let name = CloudConfigurationManager.GetSetting "blob-name"
+    let blob = storageAccount.CreateCloudBlobClient().GetContainerReference(name)
+    blob.CreateIfNotExists() |> ignore
+    blob
+
+let decompressGZip (b : Blob.CloudBlockBlob) =
+    use s = new MemoryStream()
+    b.DownloadToStream(s)
+    s.Seek(0L, SeekOrigin.Begin) |> ignore
+    use readStream = new GZipStream(s, CompressionMode.Decompress)
+    use writeStream = new MemoryStream()
+    readStream.CopyTo(writeStream)
+    writeStream.Seek(0L, SeekOrigin.Begin) |> ignore
+    System.Text.Encoding.UTF8.GetString(writeStream.ToArray())
+
 let send =
     let host = CloudConfigurationManager.GetSetting "email-host"
     let port = CloudConfigurationManager.GetSetting "email-port" |> Int32.Parse
@@ -130,15 +152,24 @@ let send =
 
     Mail.send config
 
+let rec handle msg =
+    match msg |> Mail.parse with
+    | Mail.EmailData mail ->
+        send mail
+    | Mail.EmailReference ref ->
+        let b = blob.GetBlockBlobReference(ref.DataAddress)
+        b
+        |> decompressGZip
+        |> handle
+        b.Delete()
+    | _ -> raise <| InvalidOperationException("Unknown message type.")
+
 [<EntryPoint>]
 let main argv = 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        match msg.AsString |> Mail.parse with
-        | Mail.EmailData mail ->
-            send mail
-            queue.DeleteMessage msg
-        | _ -> raise <| InvalidOperationException("Unknown message type.")
+        handle msg.AsString
+        queue.DeleteMessage msg
     | _ -> ()
 
     0 // return an integer exit code
