@@ -37,21 +37,23 @@ module Mail =
         let ns = XmlNamespaceManager(xml.NameTable)
         ns.AddNamespace("e", "urn:grean:schemas:email:2014")
 
-        let select path = xml.DocumentElement.SelectSingleNode(path, ns).InnerText
-        let selectAll path = xml.DocumentElement.SelectNodes(path, ns)
+        let document = xml.DocumentElement
+
+        let select (x : XmlNode) path = x.SelectSingleNode(path, ns).InnerText
+        let selectAll path = document.SelectNodes(path, ns)
 
         try
             {
-                From = { SmtpAddress = select "e:from/e:smtp-address"
-                         DisplayName = select "e:from/e:display-name" }
+                From = { SmtpAddress = select document "e:from/e:smtp-address"
+                         DisplayName = select document "e:from/e:display-name" }
 
-                To = seq { for n in selectAll "e:to/e:address"  do
-                                yield { SmtpAddress = n.FirstChild.InnerText;
-                                        DisplayName = n.LastChild.InnerText } }
+                To = seq { for node in selectAll "e:to/e:address"  do
+                               yield { SmtpAddress = select node "e:smtp-address"
+                                       DisplayName = select node "e:display-name" } }
                      |> Seq.toArray
 
-                Subject = select "e:subject"
-                Body = select "e:body"
+                Subject = select document "e:subject"
+                Body = select document "e:body"
             }
             |> Some
         with | :? NullReferenceException -> None
