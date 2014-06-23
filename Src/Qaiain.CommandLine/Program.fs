@@ -39,21 +39,21 @@ module Mail =
 
         let document = xml.DocumentElement
 
-        let select (x : XmlNode) path = x.SelectSingleNode(path, ns).InnerText
+        let select path (x : XmlNode) = x.SelectSingleNode(path, ns).InnerText
         let selectAll path = document.SelectNodes(path, ns)
 
         try
             {
-                From = { SmtpAddress = select document "e:from/e:smtp-address"
-                         DisplayName = select document "e:from/e:display-name" }
+                From = { SmtpAddress = document |> select "e:from/e:smtp-address"
+                         DisplayName = document |> select "e:from/e:display-name" }
 
                 To = seq { for node in selectAll "e:to/e:address"  do
-                               yield { SmtpAddress = select node "e:smtp-address"
-                                       DisplayName = select node "e:display-name" } }
+                               yield { SmtpAddress = node |> select "e:smtp-address"
+                                       DisplayName = node |> select "e:display-name" } }
                      |> Seq.toArray
 
-                Subject = select document "e:subject"
-                Body = select document "e:body"
+                Subject = document |> select "e:subject"
+                Body = document |> select "e:body"
             }
             |> Some
         with | :? NullReferenceException -> None
