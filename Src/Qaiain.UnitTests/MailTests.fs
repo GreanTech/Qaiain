@@ -263,6 +263,46 @@ let ParseReturnsCorrectResult () =
                                          MimeType = "video/mp4"
                                          Name = "XyzVideo" } ] }
                      |> EmailData }
+
+        { input =
+           """<?xml version="1.0"?>
+              <email xmlns:e="urn:grean:schemas:email:2014">
+                <e:from>
+                  <e:smtp-address>foo@foo.com</e:smtp-address>
+                  <e:display-name>Foo</e:display-name>
+                </e:from>
+                <e:to>
+                  <e:address>
+                    <e:display-name>Bar</e:display-name>
+                    <e:smtp-address>bar@bar.com</e:smtp-address>
+                  </e:address>
+                  <e:address>
+                    <e:display-name>Qux</e:display-name>
+                    <e:smtp-address>qux@qux.com</e:smtp-address>
+                  </e:address>
+                </e:to>
+                <e:subject>Test</e:subject>
+                <e:body>This is a test message.</e:body>
+                <e:attachments>
+                  <e:attachment>
+                    <e:content>MTIz</e:content>
+                    <e:mime-type>audio/vnd.wave</e:mime-type>
+                    <e:name>6771bc9c-5d67-452b-8b75</e:name>
+                  </e:attachment>
+                </e:attachments>
+              </email>"""
+          expected = { From = { SmtpAddress = "foo@foo.com"
+                                DisplayName = "Foo" }
+                       To = [| { SmtpAddress = "bar@bar.com";
+                                 DisplayName = "Bar" }
+                               { SmtpAddress = "qux@qux.com";
+                                 DisplayName = "Qux" } |]
+                       Subject = "Test"
+                       Body = "This is a test message."
+                       Attachments = [ { Content = [| 49uy; 50uy; 51uy |]
+                                         MimeType = "audio/vnd.wave"
+                                         Name = "6771bc9c-5d67-452b-8b75" } ] }
+                     |> EmailData }
     ]
     |> Seq.map (fun tc -> TestCase (fun () ->
         let actual = parse tc.input
