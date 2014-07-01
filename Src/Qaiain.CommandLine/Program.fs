@@ -15,11 +15,17 @@ module Mail =
         DisplayName : string
     }
 
+    type Attachment = {
+        Content : byte array
+        MimeType : string
+        Name : string }
+
     type EmailData = {
         From : Address
         To : Address array
         Subject : string
         Body : string
+        Attachments : Attachment list
     }
 
     type EmailReference = {
@@ -47,13 +53,21 @@ module Mail =
                 From = { SmtpAddress = document |> select "e:from/e:smtp-address"
                          DisplayName = document |> select "e:from/e:display-name" }
 
-                To = seq { for node in selectAll "e:to/e:address"  do
+                To = seq { for node in selectAll "e:to/e:address" do
                                yield { SmtpAddress = node |> select "e:smtp-address"
                                        DisplayName = node |> select "e:display-name" } }
                      |> Seq.toArray
 
                 Subject = document |> select "e:subject"
                 Body = document |> select "e:body"
+
+                Attachments =
+                    seq { for node in selectAll "e:attachments/e:attachment" do
+                              yield { Content = node |> select "e:content"
+                                                     |> Convert.FromBase64String
+                                      MimeType = node |> select "e:mime-type"
+                                      Name = node |> select "e:name" } }
+                    |> Seq.toList
             }
             |> Some
         with | :? NullReferenceException -> None
