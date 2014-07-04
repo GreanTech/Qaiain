@@ -145,7 +145,7 @@ let blob =
         CloudConfigurationManager.GetSetting "storageConnectionString"
         |> CloudStorageAccount.Parse
 
-    let name = CloudConfigurationManager.GetSetting "blob-name"
+    let name = CloudConfigurationManager.GetSetting "messages-container"
     let blob = storageAccount.CreateCloudBlobClient().GetContainerReference(name)
     blob.CreateIfNotExists() |> ignore
     blob
