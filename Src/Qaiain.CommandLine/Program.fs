@@ -140,7 +140,7 @@ let queue =
     q.CreateIfNotExists() |> ignore
     q
 
-let blob =
+let private blob =
     let storageAccount =
         CloudConfigurationManager.GetSetting "storageConnectionString"
         |> CloudStorageAccount.Parse
