@@ -1,4 +1,5 @@
 ﻿open System
+open System.IO
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
@@ -107,6 +108,10 @@ module Mail =
     let private toMailAddress address =
         MailAddress(address.SmtpAddress, address.DisplayName)
 
+    let private toAttachment attachment =
+        use contentStream = new MemoryStream(attachment.Content)
+        new Attachment(contentStream, attachment.Name, attachment.MimeType)
+
     let send config message =
         use client = new SmtpClient(config.Host, config.Port)
         client.Credentials <-
@@ -118,6 +123,9 @@ module Mail =
         smtpMsg.IsBodyHtml <- false
         smtpMsg.Subject <- message.Subject
         smtpMsg.Body <- message.Body
+        message.Attachments |> List.map toAttachment
+                            |> List.iter smtpMsg.Attachments.Add
+
         client.Send smtpMsg
 
 let queue =
@@ -129,6 +137,22 @@ let queue =
     let q = storageAccount.CreateCloudQueueClient().GetQueueReference(name)
     q.CreateIfNotExists() |> ignore
     q
+
+let blob =
+    let storageAccount =
+        CloudConfigurationManager.GetSetting "storageConnectionString"
+        |> CloudStorageAccount.Parse
+
+    let name = CloudConfigurationManager.GetSetting "blob-name"
+    let blob = storageAccount.CreateCloudBlobClient().GetContainerReference(name)
+    blob.CreateIfNotExists() |> ignore
+    blob
+
+let download (b : Blob.CloudBlockBlob) =
+    use s = new MemoryStream()
+    b.DownloadToStream(s)
+    s.Seek(0L, SeekOrigin.Begin) |> ignore
+    System.Text.Encoding.UTF8.GetString(s.ToArray())
 
 let send =
     let host = CloudConfigurationManager.GetSetting "email-host"
@@ -144,15 +168,24 @@ let send =
 
     Mail.send config
 
+let rec handle msg =
+    match msg |> Mail.parse with
+    | Mail.EmailData mail ->
+        send mail
+    | Mail.EmailReference ref ->
+        let b = blob.GetBlockBlobReference(ref.DataAddress)
+        b
+        |> download
+        |> handle
+        b.Delete()
+    | _ -> raise <| InvalidOperationException("Unknown message type.")
+
 [<EntryPoint>]
 let main argv = 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        match msg.AsString |> Mail.parse with
-        | Mail.EmailData mail ->
-            send mail
-            queue.DeleteMessage msg
-        | _ -> raise <| InvalidOperationException("Unknown message type.")
+        handle msg.AsString
+        queue.DeleteMessage msg
     | _ -> ()
 
     0 // return an integer exit code
