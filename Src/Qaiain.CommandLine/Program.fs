@@ -109,8 +109,10 @@ module Mail =
         MailAddress(address.SmtpAddress, address.DisplayName)
 
     let private toAttachment attachment =
-        use contentStream = new MemoryStream(attachment.Content)
-        new Attachment(contentStream, attachment.Name, attachment.MimeType)
+        new Attachment(
+            new MemoryStream(attachment.Content),
+            attachment.Name,
+            attachment.MimeType)
 
     let send config message =
         use client = new SmtpClient(config.Host, config.Port)
