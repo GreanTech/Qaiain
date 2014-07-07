@@ -353,3 +353,56 @@ let HandleThrowsForUnknownMessage () =
         handle (fun x -> "" |> Some) (fun x -> ()) (fun x -> ()) message
 
     raises<InvalidOperationException> <@ "<bar" |> handle @>
+
+[<Fact>]
+let HandleSendsCorrectEmailForPointerMessages () =
+    let verified = ref false
+    let expected = { From = { SmtpAddress = "foo@foo.com"
+                              DisplayName = "Foo" }
+                     To = [| { SmtpAddress = "bar@bar.com";
+                               DisplayName = "Bar" } |]
+                     Subject = "Test"
+                     Body = "This is a test message."
+                     Attachments = [ { Content = [| 49uy |]
+                                       MimeType = "image/png"
+                                       Name = "Quux" } ] }
+    let sendEmail actual =
+        verified := expected = actual
+        ()
+    let dataAddress = "http://blobs.foo.bar/baz/qux"
+    let getMessage actual =
+        if actual = dataAddress then
+            """<?xml version="1.0"?>
+               <email xmlns="urn:grean:schemas:email:2014">
+                 <from>
+                   <smtp-address>foo@foo.com</smtp-address>
+                   <display-name>Foo</display-name>
+                 </from>
+                 <to>
+                   <address>
+                     <display-name>Bar</display-name>
+                     <smtp-address>bar@bar.com</smtp-address>
+                   </address>
+                 </to>
+                 <subject>Test</subject>
+                 <body>This is a test message.</body>
+                 <attachments>
+                   <attachment>
+                     <content>MQ==</content>
+                     <mime-type>image/png</mime-type>
+                     <name>Quux</name>
+                   </attachment>
+                 </attachments>
+               </email>"""
+            |> Some
+        else None
+    let handle message =
+        handle getMessage (fun x -> ()) sendEmail message
+
+    """<?xml version="1.0"?>
+       <email-reference xmlns:e="urn:grean:schemas:email:2014">
+         <e:data-address>""" + dataAddress + """</e:data-address>
+       </email-reference>"""
+    |> handle
+
+    verify <@ verified = ref true @>

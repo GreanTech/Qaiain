@@ -164,10 +164,15 @@ let send =
 
     Mail.send config
 
-let handle (getMessage) (deleteMessage) (sendEmail) msg =
+let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
     match msg |> Mail.parse with
     | Mail.EmailData mail ->
         mail |> sendEmail
+    | Mail.EmailReference ref ->
+        match ref.DataAddress |> getMessage with
+        | Some message ->
+            message |> handle getMessage deleteMessage sendEmail
+        | None -> ()
     | _ -> raise <| InvalidOperationException("Unknown message type.")
 
 let rec private _handle msg =
