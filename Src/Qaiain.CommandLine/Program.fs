@@ -164,13 +164,13 @@ let send =
 
     Mail.send config
 
-let rec handle msg =
+let rec private _handle msg =
     match msg |> Mail.parse with
     | Mail.EmailData mail ->
         send mail
     | Mail.EmailReference ref ->
         let b = blob.GetBlockBlobReference(ref.DataAddress)
-        b.DownloadText() |> handle
+        b.DownloadText() |> _handle
         b.Delete()
     | _ -> raise <| InvalidOperationException("Unknown message type.")
 
@@ -178,7 +178,7 @@ let rec handle msg =
 let main argv = 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        handle msg.AsString
+        _handle msg.AsString
         queue.DeleteMessage msg
     | _ -> ()
 
