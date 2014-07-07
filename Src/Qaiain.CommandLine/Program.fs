@@ -176,21 +176,19 @@ let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
         | None -> ()
     | _ -> raise <| InvalidOperationException("Unknown message type.")
 
-let rec private _handle msg =
-    match msg |> Mail.parse with
-    | Mail.EmailData mail ->
-        send mail
-    | Mail.EmailReference ref ->
-        let b = blob.GetBlockBlobReference(ref.DataAddress)
-        b.DownloadText() |> _handle
-        b.Delete()
-    | _ -> raise <| InvalidOperationException("Unknown message type.")
-
 [<EntryPoint>]
 let main argv = 
+    let getMessage blobName =
+        try blob.GetBlockBlobReference(blobName).DownloadText() |> Some
+        with | :? StorageException -> None
+
+    let deleteMessage blobName =
+        try blob.GetBlockBlobReference(blobName).Delete()
+        with | :? StorageException -> ()
+
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        _handle msg.AsString
+        handle getMessage deleteMessage send msg.AsString
         queue.DeleteMessage msg
     | _ -> ()
 
