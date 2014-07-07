@@ -168,6 +168,7 @@ let handle (getMessage) (deleteMessage) (sendEmail) msg =
     match msg |> Mail.parse with
     | Mail.EmailData mail ->
         mail |> sendEmail
+    | _ -> raise <| InvalidOperationException("Unknown message type.")
 
 let rec private _handle msg =
     match msg |> Mail.parse with

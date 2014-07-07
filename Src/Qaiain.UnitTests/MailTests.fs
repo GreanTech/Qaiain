@@ -309,6 +309,8 @@ let ParseReturnsCorrectResult () =
         verify <@ tc.expected = actual @>))
 
 open Program
+open System
+open Swensen.Unquote.Assertions
 
 [<Fact>]
 let HandleSendsCorrectEmail () =
@@ -344,3 +346,10 @@ let HandleSendsCorrectEmail () =
     |> handle
 
     verify <@ verified = ref true @>
+
+[<Fact>]
+let HandleThrowsForUnknownMessage () =
+    let handle message =
+        handle (fun x -> "" |> Some) (fun x -> ()) (fun x -> ()) message
+
+    raises<InvalidOperationException> <@ "<bar" |> handle @>
