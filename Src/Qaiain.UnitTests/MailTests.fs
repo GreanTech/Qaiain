@@ -414,7 +414,7 @@ let HandleDeletesCorrectMessageForPointerMessages () =
     let deleteMessage actual =
         verified := expected = actual
         ()
-    let getMessage dummyArg =
+    let getMessage _ =
         """<?xml version="1.0"?>
            <email xmlns="urn:grean:schemas:email:2014">
              <from>
@@ -448,3 +448,20 @@ let HandleDeletesCorrectMessageForPointerMessages () =
     |> handle
 
     verify <@ verified = ref true @>
+
+[<Fact>]
+let HandleDoesNotDeletesNonExistingBlobs () =
+    let verified = ref false
+    let deleteMessage _ =
+        verified := true
+        ()
+    let handle message =
+        handle (fun x -> None) deleteMessage (fun x -> ()) message
+
+    """<?xml version="1.0"?>
+       <email-reference xmlns:e="urn:grean:schemas:email:2014">
+         <e:data-address>http://non.existing.blob/ni/kos</e:data-address>
+       </email-reference>"""
+    |> handle
+
+    verify <@ verified = ref false @>
