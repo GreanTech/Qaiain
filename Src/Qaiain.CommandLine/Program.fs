@@ -172,6 +172,7 @@ let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
         match ref.DataAddress |> getMessage with
         | Some message ->
             message |> handle getMessage deleteMessage sendEmail
+            ref.DataAddress |> deleteMessage
         | None -> ()
     | _ -> raise <| InvalidOperationException("Unknown message type.")
 

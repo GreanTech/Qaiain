@@ -406,3 +406,45 @@ let HandleSendsCorrectEmailForPointerMessages () =
     |> handle
 
     verify <@ verified = ref true @>
+
+[<Fact>]
+let HandleDeletesCorrectMessageForPointerMessages () =
+    let verified = ref false
+    let expected = "http://blobs.foo.bar/baz/qux"
+    let deleteMessage actual =
+        verified := expected = actual
+        ()
+    let getMessage dummyArg =
+        """<?xml version="1.0"?>
+           <email xmlns="urn:grean:schemas:email:2014">
+             <from>
+               <smtp-address>foo@foo.com</smtp-address>
+               <display-name>Foo</display-name>
+             </from>
+             <to>
+               <address>
+                 <display-name>Bar</display-name>
+                 <smtp-address>bar@bar.com</smtp-address>
+               </address>
+             </to>
+             <subject>Test</subject>
+             <body>This is a test message.</body>
+             <attachments>
+               <attachment>
+                 <content>MQ==</content>
+                 <mime-type>image/png</mime-type>
+                 <name>Quux</name>
+               </attachment>
+             </attachments>
+           </email>"""
+        |> Some
+    let handle message =
+        handle getMessage deleteMessage (fun x -> ()) message
+
+    """<?xml version="1.0"?>
+       <email-reference xmlns:e="urn:grean:schemas:email:2014">
+         <e:data-address>""" + expected + """</e:data-address>
+       </email-reference>"""
+    |> handle
+
+    verify <@ verified = ref true @>
