@@ -326,7 +326,7 @@ let HandleSendsCorrectEmail () =
         verified := expected = actual
         ()
     let handle message =
-        handle (fun x -> "" |> Some) (fun x -> ()) sendEmail message
+        handle (fun x -> "" |> Some) ignore sendEmail message
 
     """<?xml version="1.0"?>
        <email xmlns:e="urn:grean:schemas:email:2014">
@@ -350,7 +350,7 @@ let HandleSendsCorrectEmail () =
 [<Fact>]
 let HandleThrowsForUnknownMessage () =
     let handle message =
-        handle (fun x -> "" |> Some) (fun x -> ()) (fun x -> ()) message
+        handle (fun x -> "" |> Some) ignore ignore message
 
     raises<InvalidOperationException> <@ "<bar" |> handle @>
 
@@ -397,7 +397,7 @@ let HandleSendsCorrectEmailForPointerMessages () =
             |> Some
         else None
     let handle message =
-        handle getMessage (fun x -> ()) sendEmail message
+        handle getMessage ignore sendEmail message
 
     """<?xml version="1.0"?>
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
@@ -439,7 +439,7 @@ let HandleDeletesCorrectMessageForPointerMessages () =
            </email>"""
         |> Some
     let handle message =
-        handle getMessage deleteMessage (fun x -> ()) message
+        handle getMessage deleteMessage ignore message
 
     """<?xml version="1.0"?>
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
@@ -456,7 +456,7 @@ let HandleDoesNotDeletesNonExistingBlobs () =
         verified := true
         ()
     let handle message =
-        handle (fun x -> None) deleteMessage (fun x -> ()) message
+        handle (fun x -> None) deleteMessage ignore message
 
     """<?xml version="1.0"?>
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
