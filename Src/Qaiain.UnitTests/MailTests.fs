@@ -308,7 +308,6 @@ let ParseReturnsCorrectResult () =
         let actual = parse tc.input
         verify <@ tc.expected = actual @>))
 
-open Program
 open System
 open Swensen.Unquote.Assertions
 

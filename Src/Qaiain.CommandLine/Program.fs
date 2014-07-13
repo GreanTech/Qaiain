@@ -130,6 +130,18 @@ module Mail =
 
         client.Send smtpMsg
 
+    let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
+        match msg |> parse with
+        | EmailMessage.EmailData mail ->
+            mail |> sendEmail
+        | EmailMessage.EmailReference ref ->
+            match ref.DataAddress |> getMessage with
+            | Some message ->
+                message |> handle getMessage deleteMessage sendEmail
+                ref.DataAddress |> deleteMessage
+            | None -> ()
+        | _ -> raise <| InvalidOperationException("Unknown message type.")
+
 let queue =
     let storageAccount =
         CloudConfigurationManager.GetSetting "storageConnectionString"
@@ -164,18 +176,6 @@ let send =
 
     Mail.send config
 
-let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
-    match msg |> Mail.parse with
-    | Mail.EmailData mail ->
-        mail |> sendEmail
-    | Mail.EmailReference ref ->
-        match ref.DataAddress |> getMessage with
-        | Some message ->
-            message |> handle getMessage deleteMessage sendEmail
-            ref.DataAddress |> deleteMessage
-        | None -> ()
-    | _ -> raise <| InvalidOperationException("Unknown message type.")
-
 [<EntryPoint>]
 let main argv = 
     let getMessage blobName =
@@ -188,7 +188,7 @@ let main argv =
 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        handle getMessage deleteMessage send msg.AsString
+        Mail.handle getMessage deleteMessage send msg.AsString
         queue.DeleteMessage msg
     | _ -> ()
 
