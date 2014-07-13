@@ -186,9 +186,11 @@ let main argv =
         try blob.GetBlockBlobReference(blobName).Delete()
         with | :? StorageException -> ()
 
+    let handle msg = Mail.handle getMessage deleteMessage send msg
+
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        Mail.handle getMessage deleteMessage send msg.AsString
+        msg.AsString |> handle
         queue.DeleteMessage msg
     | _ -> ()
 
