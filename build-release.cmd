@@ -1,2 +1,2 @@
 @echo off
-Src\packages\FAKE\tools\FAKE.exe Build.fsx %*
+Src\packages\FAKE.3.2.3\tools\FAKE.exe Build.fsx %*

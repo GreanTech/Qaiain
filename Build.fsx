@@ -1,14 +1,13 @@
-#r @"Src/packages/FAKE/tools/FakeLib.dll"
+#r @"Src/packages/FAKE.3.2.3/tools/FakeLib.dll"
 
 open Fake
-open System.IO
 
-let (+/) path1 path2 = Path.Combine(path1, path2)
+let (+/) path1 path2 = System.IO.Path.Combine(path1, path2)
 
 let ``Qaiain.CommandLine project path`` = "Src" +/ "Qaiain.CommandLine"
 let ``Qaiain.UnitTests project path``   = "Src" +/ "Qaiain.UnitTests"
 let ``Qaiain solution path``            = "Src" +/ "Qaiain.sln"
-let ``Qaiain xUnit.net Unit Tests``     = "Src/**/bin/Release/*.UnitTests.dll"
+let ``Qaiain xUnit.net unit tests``     = "Src/**/bin/Release/*.UnitTests.dll"
 
 Target "Clean" (fun _ ->
     CleanDirs [
@@ -23,7 +22,7 @@ Target "Build" (fun _ ->
     |> ignore)
 
 Target "Tests" (fun _ ->
-    !! ``Qaiain xUnit.net Unit Tests``
+    !! ``Qaiain xUnit.net unit tests``
     |> xUnit (fun options -> options))
 
 "Clean"
