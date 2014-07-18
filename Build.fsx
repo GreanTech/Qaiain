@@ -8,6 +8,7 @@ let (+/) path1 path2 = Path.Combine(path1, path2)
 let ``Qaiain.CommandLine project path`` = "Src" +/ "Qaiain.CommandLine"
 let ``Qaiain.UnitTests project path``   = "Src" +/ "Qaiain.UnitTests"
 let ``Qaiain solution path``            = "Src" +/ "Qaiain.sln"
+let ``Qaiain xUnit.net Unit Tests``     = "Src/**/bin/Release/*.UnitTests.dll"
 
 Target "Clean" (fun _ ->
     CleanDirs [
@@ -21,7 +22,12 @@ Target "Build" (fun _ ->
     |> MSBuildRelease "" "Rebuild"
     |> ignore)
 
+Target "Tests" (fun _ ->
+    !! ``Qaiain xUnit.net Unit Tests``
+    |> xUnit (fun options -> options))
+
 "Clean"
   ==> "Build"
+  ==> "Tests"
 
-RunTargetOrDefault "Build"
+RunTargetOrDefault "Tests"
