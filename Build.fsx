@@ -17,7 +17,7 @@ Target "Clean" (fun _ ->
       ``Qaiain.UnitTests project path``   +/ "obj" ])
 
 Target "Build" (fun _ ->
-    !! (``Qaiain solution path``)
+    !! ``Qaiain solution path``
     |> MSBuildRelease "" "Rebuild"
     |> ignore)
 
