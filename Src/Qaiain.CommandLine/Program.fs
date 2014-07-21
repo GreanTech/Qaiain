@@ -3,6 +3,10 @@ open System.IO
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
+type Either<'TSuccess, 'TFailure> =
+    | Success of 'TSuccess
+    | Failure of 'TFailure
+
 module AzureQ =
     let dequeue (q : Queue.CloudQueue) =
         match q.GetMessage() with
@@ -133,14 +137,14 @@ module Mail =
     let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
         match msg |> parse with
         | EmailMessage.EmailData mail ->
-            mail |> sendEmail
+            mail |> sendEmail |> Success
         | EmailMessage.EmailReference ref ->
             match ref.DataAddress |> getMessage with
             | Some message ->
-                message |> handle getMessage deleteMessage sendEmail
-                ref.DataAddress |> deleteMessage
-            | None -> ()
-        | _ -> raise <| InvalidOperationException("Unknown message type.")
+                message |> handle getMessage deleteMessage sendEmail |> ignore
+                ref.DataAddress |> deleteMessage |> Success
+            | None -> () |> Success
+        | _ -> Failure <| InvalidOperationException("Unknown message type.")
 
 let queue =
     let storageAccount =
@@ -190,8 +194,9 @@ let main argv =
 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        msg.AsString |> handle
-        queue.DeleteMessage msg
+        match msg.AsString |> handle with
+        | Success _ -> queue.DeleteMessage msg
+        | Failure e -> raise e
     | _ -> ()
 
     0 // return an integer exit code

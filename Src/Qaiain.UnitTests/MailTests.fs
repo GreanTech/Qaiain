@@ -308,6 +308,7 @@ let ParseReturnsCorrectResult () =
         let actual = parse tc.input
         verify <@ tc.expected = actual @>))
 
+open Program
 open System
 open Swensen.Unquote.Assertions
 
@@ -347,11 +348,17 @@ let HandleSendsCorrectEmail () =
     verify <@ verified = ref true @>
 
 [<Fact>]
-let HandleThrowsForUnknownMessage () =
+let HandleReturnsCorrectResultForUnknownMessage () =
+    let verified = ref false
     let handle message =
         handle (fun x -> "" |> Some) ignore ignore message
 
-    raises<InvalidOperationException> <@ "<bar" |> handle @>
+    let actual =
+        match "<bar" |> handle with
+        | Failure e -> verified := e.GetType() = typeof<InvalidOperationException>
+        | Success _ -> verified := false
+
+    verify <@ verified = ref true @>
 
 [<Fact>]
 let HandleSendsCorrectEmailForPointerMessages () =
