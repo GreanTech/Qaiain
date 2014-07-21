@@ -326,7 +326,7 @@ let HandleSendsCorrectEmail () =
         verified := expected = actual
         ()
     let handle message =
-        handle (fun x -> "" |> Some) ignore sendEmail message
+        handle (fun x -> "" |> Some) ignore sendEmail message |> ignore
 
     """<?xml version="1.0"?>
        <email xmlns:e="urn:grean:schemas:email:2014">
@@ -409,7 +409,7 @@ let HandleSendsCorrectEmailForPointerMessages () =
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
          <e:data-address>""" + dataAddress + """</e:data-address>
        </email-reference>"""
-    |> handle
+    |> handle |> ignore
 
     verify <@ verified = ref true @>
 
@@ -451,7 +451,7 @@ let HandleDeletesCorrectMessageForPointerMessages () =
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
          <e:data-address>""" + expected + """</e:data-address>
        </email-reference>"""
-    |> handle
+    |> handle |> ignore
 
     verify <@ verified = ref true @>
 
@@ -468,6 +468,6 @@ let HandleDoesNotDeletesNonExistingBlobs () =
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
          <e:data-address>http://non.existing.blob/ni/kos</e:data-address>
        </email-reference>"""
-    |> handle
+    |> handle |> ignore
 
     verify <@ verified = ref false @>
