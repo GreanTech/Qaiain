@@ -3,7 +3,7 @@ open System.IO
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
-type Either<'TSuccess, 'TFailure> =
+type Result<'TSuccess, 'TFailure> =
     | Success of 'TSuccess
     | Failure of 'TFailure
 
