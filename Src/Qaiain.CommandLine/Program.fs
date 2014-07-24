@@ -144,7 +144,7 @@ module Mail =
                 message |> handle getMessage deleteMessage sendEmail |> ignore
                 ref.DataAddress |> deleteMessage |> Success
             | None -> () |> Success
-        | _ -> Failure <| InvalidOperationException("Unknown message type.")
+        | _ -> "Unknown message type." |> Failure
 
 let queue =
     let storageAccount =
@@ -196,7 +196,7 @@ let main argv =
     | Some(msg) ->
         match msg.AsString |> handle with
         | Success _ -> queue.DeleteMessage msg
-        | Failure e -> raise e
+        | Failure f -> raise <| InvalidOperationException(f)
     | _ -> ()
 
     0 // return an integer exit code

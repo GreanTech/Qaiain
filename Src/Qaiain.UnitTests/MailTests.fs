@@ -350,12 +350,13 @@ let HandleSendsCorrectEmail () =
 [<Fact>]
 let HandleReturnsCorrectResultForUnknownMessage () =
     let verified = ref false
+    let expected = "Unknown message type."
     let handle message =
         handle (fun x -> "" |> Some) ignore ignore message
 
     let actual =
         match "<bar" |> handle with
-        | Failure e -> verified := e.GetType() = typeof<InvalidOperationException>
+        | Failure actual -> verified := expected = actual
         | Success _ -> verified := false
 
     verify <@ verified = ref true @>
