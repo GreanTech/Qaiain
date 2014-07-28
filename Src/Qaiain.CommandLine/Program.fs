@@ -7,9 +7,6 @@ type Result<'TSuccess, 'TFailure> =
     | Success of 'TSuccess
     | Failure of 'TFailure
 
-type ErrorMessage =
-    | UnknownMessageType
-
 module AzureQ =
     let dequeue (q : Queue.CloudQueue) =
         match q.GetMessage() with
@@ -44,6 +41,9 @@ module Mail =
         | EmailData of EmailData
         | EmailReference of EmailReference
         | Unknown
+
+    type ErrorMessage =
+        | UnknownMessageType
 
     open System.Xml
 
