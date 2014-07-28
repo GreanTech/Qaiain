@@ -350,7 +350,7 @@ let HandleSendsCorrectEmail () =
 [<Fact>]
 let HandleReturnsCorrectResultForUnknownMessage () =
     let verified = ref false
-    let expected = "Unknown message type."
+    let expected = UnknownMessageType
     let handle message =
         handle (fun x -> "" |> Some) ignore ignore message
 

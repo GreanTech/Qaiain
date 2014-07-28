@@ -7,6 +7,9 @@ type Result<'TSuccess, 'TFailure> =
     | Success of 'TSuccess
     | Failure of 'TFailure
 
+type ErrorMessage =
+    | UnknownMessageType
+
 module AzureQ =
     let dequeue (q : Queue.CloudQueue) =
         match q.GetMessage() with
@@ -144,7 +147,7 @@ module Mail =
                 message |> handle getMessage deleteMessage sendEmail |> ignore
                 ref.DataAddress |> deleteMessage |> Success
             | None -> () |> Success
-        | _ -> "Unknown message type." |> Failure
+        | _ -> UnknownMessageType |> Failure
 
 let queue =
     let storageAccount =
@@ -190,13 +193,18 @@ let main argv =
         try blob.GetBlockBlobReference(blobName).Delete()
         with | :? StorageException -> ()
 
+    let toException errorMessage =
+        match errorMessage with
+        | UnknownMessageType ->
+            InvalidOperationException("Unknown message type.")
+
     let handle msg = Mail.handle getMessage deleteMessage send msg
 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
         match msg.AsString |> handle with
         | Success _ -> queue.DeleteMessage msg
-        | Failure f -> raise <| InvalidOperationException(f)
+        | Failure f -> f |> toException |> raise
     | _ -> ()
 
     0 // return an integer exit code
