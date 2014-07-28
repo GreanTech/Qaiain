@@ -193,10 +193,9 @@ let main argv =
         try blob.GetBlockBlobReference(blobName).Delete()
         with | :? StorageException -> ()
 
-    let toException errorMessage =
+    let toString errorMessage =
         match errorMessage with
-        | UnknownMessageType ->
-            InvalidOperationException("Unknown message type.")
+        | Mail.ErrorMessage.UnknownMessageType -> "Unknown message type."
 
     let handle msg = Mail.handle getMessage deleteMessage send msg
 
@@ -204,7 +203,7 @@ let main argv =
     | Some(msg) ->
         match msg.AsString |> handle with
         | Success _ -> queue.DeleteMessage msg
-        | Failure f -> f |> toException |> raise
+        | Failure f -> f |> toString |> Console.Error.WriteLine
     | _ -> ()
 
     0 // return an integer exit code
