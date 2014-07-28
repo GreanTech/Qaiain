@@ -199,11 +199,14 @@ let main argv =
 
     let handle msg = Mail.handle getMessage deleteMessage send msg
 
+    let exitCode = ref 0
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
         match msg.AsString |> handle with
         | Success _ -> queue.DeleteMessage msg
-        | Failure f -> f |> toString |> Console.Error.WriteLine
+        | Failure f ->
+            f |> toString |> Console.Error.WriteLine
+            exitCode := 13
     | _ -> ()
 
-    0 // return an integer exit code
+    !exitCode // return an integer exit code
