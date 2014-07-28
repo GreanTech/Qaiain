@@ -308,6 +308,7 @@ let ParseReturnsCorrectResult () =
         let actual = parse tc.input
         verify <@ tc.expected = actual @>))
 
+open Program
 open System
 open Swensen.Unquote.Assertions
 
@@ -325,7 +326,7 @@ let HandleSendsCorrectEmail () =
         verified := expected = actual
         ()
     let handle message =
-        handle (fun x -> "" |> Some) ignore sendEmail message
+        handle (fun x -> "" |> Some) ignore sendEmail message |> ignore
 
     """<?xml version="1.0"?>
        <email xmlns:e="urn:grean:schemas:email:2014">
@@ -347,11 +348,18 @@ let HandleSendsCorrectEmail () =
     verify <@ verified = ref true @>
 
 [<Fact>]
-let HandleThrowsForUnknownMessage () =
+let HandleReturnsCorrectResultForUnknownMessage () =
+    let verified = ref false
+    let expected = UnknownMessageType
     let handle message =
         handle (fun x -> "" |> Some) ignore ignore message
 
-    raises<InvalidOperationException> <@ "<bar" |> handle @>
+    let actual =
+        match "<bar" |> handle with
+        | Failure actual -> verified := expected = actual
+        | Success _ -> verified := false
+
+    verify <@ verified = ref true @>
 
 [<Fact>]
 let HandleSendsCorrectEmailForPointerMessages () =
@@ -402,7 +410,7 @@ let HandleSendsCorrectEmailForPointerMessages () =
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
          <e:data-address>""" + dataAddress + """</e:data-address>
        </email-reference>"""
-    |> handle
+    |> handle |> ignore
 
     verify <@ verified = ref true @>
 
@@ -444,7 +452,7 @@ let HandleDeletesCorrectMessageForPointerMessages () =
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
          <e:data-address>""" + expected + """</e:data-address>
        </email-reference>"""
-    |> handle
+    |> handle |> ignore
 
     verify <@ verified = ref true @>
 
@@ -461,6 +469,6 @@ let HandleDoesNotDeletesNonExistingBlobs () =
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
          <e:data-address>http://non.existing.blob/ni/kos</e:data-address>
        </email-reference>"""
-    |> handle
+    |> handle |> ignore
 
     verify <@ verified = ref false @>

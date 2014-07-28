@@ -3,6 +3,10 @@ open System.IO
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
+type Result<'TSuccess, 'TFailure> =
+    | Success of 'TSuccess
+    | Failure of 'TFailure
+
 module AzureQ =
     let dequeue (q : Queue.CloudQueue) =
         match q.GetMessage() with
@@ -37,6 +41,9 @@ module Mail =
         | EmailData of EmailData
         | EmailReference of EmailReference
         | Unknown
+
+    type ErrorMessage =
+        | UnknownMessageType
 
     open System.Xml
 
@@ -133,14 +140,14 @@ module Mail =
     let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
         match msg |> parse with
         | EmailMessage.EmailData mail ->
-            mail |> sendEmail
+            mail |> sendEmail |> Success
         | EmailMessage.EmailReference ref ->
             match ref.DataAddress |> getMessage with
             | Some message ->
-                message |> handle getMessage deleteMessage sendEmail
-                ref.DataAddress |> deleteMessage
-            | None -> ()
-        | _ -> raise <| InvalidOperationException("Unknown message type.")
+                message |> handle getMessage deleteMessage sendEmail |> ignore
+                ref.DataAddress |> deleteMessage |> Success
+            | None -> () |> Success
+        | _ -> UnknownMessageType |> Failure
 
 let queue =
     let storageAccount =
@@ -186,12 +193,19 @@ let main argv =
         try blob.GetBlockBlobReference(blobName).Delete()
         with | :? StorageException -> ()
 
+    let toString errorMessage =
+        match errorMessage with
+        | Mail.ErrorMessage.UnknownMessageType -> "Unknown message type."
+
     let handle msg = Mail.handle getMessage deleteMessage send msg
 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->
-        msg.AsString |> handle
-        queue.DeleteMessage msg
-    | _ -> ()
-
-    0 // return an integer exit code
+        match msg.AsString |> handle with
+        | Success _ ->
+            queue.DeleteMessage msg
+            0
+        | Failure f ->
+            f |> toString |> Console.Error.WriteLine
+            13
+    | _ -> 0
