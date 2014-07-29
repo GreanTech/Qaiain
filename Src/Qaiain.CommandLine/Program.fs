@@ -183,6 +183,16 @@ let send =
 
     Mail.send config
 
+// Select command-line return constants taken from 
+// http://msdn.microsoft.com/en-us/library/windows/desktop/ms681382.aspx
+[<Literal>]
+let ERROR_SUCCESS = 0
+
+[<Literal>]
+let ERROR_INVALID_DATA = 13
+
+// End of constants -------
+
 [<EntryPoint>]
 let main argv = 
     let getMessage blobName =
@@ -204,8 +214,8 @@ let main argv =
         match msg.AsString |> handle with
         | Success _ ->
             queue.DeleteMessage msg
-            0
+            ERROR_SUCCESS
         | Failure f ->
             f |> toString |> Console.Error.WriteLine
-            13
-    | _ -> 0
+            ERROR_INVALID_DATA
+    | _ -> ERROR_SUCCESS
