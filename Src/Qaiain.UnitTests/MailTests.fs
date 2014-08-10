@@ -353,6 +353,10 @@ let HandleReturnsCorrectResultForUnknownMessage () =
     let expected = UnknownMessageType
     let handle message =
         handle (fun x -> "" |> Some) ignore ignore message
+    let (|Success|Failure|) =
+        function
+        | Choice1Of2 a -> Success a
+        | Choice2Of2 e -> Failure e
 
     let actual =
         match "<bar" |> handle with
