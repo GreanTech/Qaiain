@@ -40,6 +40,7 @@ module Mail =
 
     type ErrorMessage =
         | UnknownMessageType
+        | InvalidMessageReference
 
     open System.Xml
 
@@ -107,6 +108,7 @@ module Mail =
 
     open System.Net
     open System.Net.Mail
+    open FSharpx.Choice
 
     let private toMailAddress address =
         MailAddress(address.SmtpAddress, address.DisplayName)
@@ -138,11 +140,10 @@ module Mail =
         | EmailMessage.EmailData mail ->
             mail |> sendEmail |> Choice1Of2
         | EmailMessage.EmailReference ref ->
-            match ref.DataAddress |> getMessage with
-            | Some message ->
-                message |> handle getMessage deleteMessage sendEmail |> ignore
-                ref.DataAddress |> deleteMessage |> Choice1Of2
-            | None -> () |> Choice1Of2
+            choose {
+                let! message = ref.DataAddress |> getMessage
+                do! message |> handle getMessage deleteMessage sendEmail
+                do! ref.DataAddress |> deleteMessage }
         | _ -> UnknownMessageType |> Choice2Of2
 
 let queue =
@@ -192,16 +193,17 @@ let ERROR_INVALID_DATA = 13
 [<EntryPoint>]
 let main argv = 
     let getMessage blobName =
-        try blob.GetBlockBlobReference(blobName).DownloadText() |> Some
-        with | :? StorageException -> None
+        try blob.GetBlockBlobReference(blobName).DownloadText() |> Choice1Of2
+        with | :? StorageException -> Mail.ErrorMessage.InvalidMessageReference |> Choice2Of2
 
     let deleteMessage blobName =
-        try blob.GetBlockBlobReference(blobName).Delete()
-        with | :? StorageException -> ()
+        try blob.GetBlockBlobReference(blobName).Delete() |> Choice1Of2
+        with | :? StorageException -> () |> Choice1Of2
 
     let toString errorMessage =
         match errorMessage with
         | Mail.ErrorMessage.UnknownMessageType -> "Unknown message type."
+        | Mail.ErrorMessage.InvalidMessageReference -> "Invalid message reference, possibly due to a non-existing block blob."
 
     let handle msg = Mail.handle getMessage deleteMessage send msg
 
