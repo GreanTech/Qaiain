@@ -55,6 +55,10 @@
     <Compile Include="MailTests.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FSharpx.Core">
+      <HintPath>..\packages\FSharpx.Core.1.8.41\lib\40\FSharpx.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Grean.Exude">
       <HintPath>..\packages\Exude.0.2.1\lib\net35\Grean.Exude.dll</HintPath>
       <Private>True</Private>
