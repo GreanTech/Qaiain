@@ -3,6 +3,11 @@ open System.IO
 open Microsoft.WindowsAzure
 open Microsoft.WindowsAzure.Storage
 
+[<AutoOpen>]
+module Result =
+    let Success = Choice1Of2
+    let Failure = Choice2Of2
+
 module AzureQ =
     let dequeue (q : Queue.CloudQueue) =
         match q.GetMessage() with
@@ -138,13 +143,13 @@ module Mail =
     let rec handle (getMessage) (deleteMessage) (sendEmail) msg =
         match msg |> parse with
         | EmailMessage.EmailData mail ->
-            mail |> sendEmail |> Choice1Of2
+            mail |> sendEmail |> Success
         | EmailMessage.EmailReference ref ->
             choose {
                 let! message = ref.DataAddress |> getMessage
                 do! message |> handle getMessage deleteMessage sendEmail
                 do! ref.DataAddress |> deleteMessage }
-        | _ -> UnknownMessageType |> Choice2Of2
+        | _ -> UnknownMessageType |> Failure
 
 let queue =
     let storageAccount =
