@@ -327,7 +327,7 @@ let HandleSendsCorrectEmail () =
         verified := expected = actual
         ()
     let handle message =
-        handle (fun x -> "" |> Choice1Of2) (fun x -> () |> Choice1Of2) sendEmail message |> ignore
+        handle (fun x -> "" |> Success) (fun x -> () |> Success) sendEmail message |> ignore
 
     """<?xml version="1.0"?>
        <email xmlns:e="urn:grean:schemas:email:2014">
@@ -353,7 +353,7 @@ let HandleReturnsCorrectResultForUnknownMessage () =
     let verified = ref false
     let expected = UnknownMessageType
     let handle message =
-        handle (fun x -> "" |> Choice1Of2) (fun x -> () |> Choice1Of2) ignore message
+        handle (fun x -> "" |> Success) (fun x -> () |> Success) ignore message
 
     let actual =
         match "<bar" |> handle with
@@ -403,10 +403,10 @@ let HandleSendsCorrectEmailForPointerMessages () =
                    </attachment>
                  </attachments>
                </email>"""
-            |> Choice1Of2
-        else dummyErrorMessage |> Choice2Of2
+            |> Success
+        else dummyErrorMessage |> Failure
     let handle message =
-        handle getMessage (fun x -> () |> Choice1Of2) sendEmail message
+        handle getMessage (fun x -> () |> Success) sendEmail message
 
     """<?xml version="1.0"?>
        <email-reference xmlns:e="urn:grean:schemas:email:2014">
@@ -422,7 +422,7 @@ let HandleDeletesCorrectMessageForPointerMessages () =
     let expected = "http://blobs.foo.bar/baz/qux"
     let deleteMessage actual =
         verified := expected = actual
-        () |> Choice1Of2
+        () |> Success
     let getMessage _ =
         """<?xml version="1.0"?>
            <email xmlns="urn:grean:schemas:email:2014">
@@ -446,7 +446,7 @@ let HandleDeletesCorrectMessageForPointerMessages () =
                </attachment>
              </attachments>
            </email>"""
-        |> Choice1Of2
+        |> Success
     let handle message =
         handle getMessage deleteMessage ignore message
 
@@ -463,10 +463,10 @@ let HandleDoesNotDeletesNonExistingBlobs () =
     let verified = ref false
     let deleteMessage _ =
         verified := true
-        () |> Choice1Of2
+        () |> Success
     let dummyErrorMessage = ErrorMessage.InvalidMessageReference
     let handle message =
-        handle (fun x -> dummyErrorMessage |> Choice2Of2) deleteMessage ignore message
+        handle (fun x -> dummyErrorMessage |> Failure) deleteMessage ignore message
 
     """<?xml version="1.0"?>
        <email-reference xmlns:e="urn:grean:schemas:email:2014">

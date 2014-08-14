@@ -200,12 +200,12 @@ open FSharpx.Validation
 [<EntryPoint>]
 let main argv = 
     let getMessage blobName =
-        try blob.GetBlockBlobReference(blobName).DownloadText() |> Choice1Of2
-        with | :? StorageException -> Mail.ErrorMessage.InvalidMessageReference |> Choice2Of2
+        try blob.GetBlockBlobReference(blobName).DownloadText() |> Success
+        with | :? StorageException -> Mail.ErrorMessage.InvalidMessageReference |> Failure
 
     let deleteMessage blobName =
-        try blob.GetBlockBlobReference(blobName).Delete() |> Choice1Of2
-        with | :? StorageException -> () |> Choice1Of2
+        try blob.GetBlockBlobReference(blobName).Delete() |> Success
+        with | :? StorageException -> () |> Success
 
     let toString errorMessage =
         match errorMessage with
