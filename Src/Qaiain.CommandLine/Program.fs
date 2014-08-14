@@ -190,6 +190,8 @@ let ERROR_INVALID_DATA = 13
 
 // End of constants -------
 
+open FSharpx.Validation
+
 [<EntryPoint>]
 let main argv = 
     let getMessage blobName =
@@ -206,11 +208,6 @@ let main argv =
         | Mail.ErrorMessage.InvalidMessageReference -> "Invalid message reference, possibly due to a non-existing block blob."
 
     let handle msg = Mail.handle getMessage deleteMessage send msg
-
-    let (|Success|Failure|) =
-        function
-        | Choice1Of2 a -> Success a
-        | Choice2Of2 e -> Failure e
 
     match queue |> AzureQ.dequeue with
     | Some(msg) ->

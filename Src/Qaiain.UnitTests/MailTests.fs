@@ -308,6 +308,7 @@ let ParseReturnsCorrectResult () =
         let actual = parse tc.input
         verify <@ tc.expected = actual @>))
 
+open FSharpx.Validation
 open Program
 open System
 open Swensen.Unquote.Assertions
@@ -353,10 +354,6 @@ let HandleReturnsCorrectResultForUnknownMessage () =
     let expected = UnknownMessageType
     let handle message =
         handle (fun x -> "" |> Choice1Of2) (fun x -> () |> Choice1Of2) ignore message
-    let (|Success|Failure|) =
-        function
-        | Choice1Of2 a -> Success a
-        | Choice2Of2 e -> Failure e
 
     let actual =
         match "<bar" |> handle with
